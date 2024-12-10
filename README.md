@@ -7,19 +7,6 @@ In today's diet culture, we are seeing the rapid rise of focus placed on protein
 As such, we are exploring two datasets to answer this question. Both are sourced from [food.com](food.com), which is a popular website for recipes where users can leave reviews.
 
 The first dataset is `recipes`, which includes 83782 unique recipes with the following 10 columns:
-| Column        | Description                                                                 |
-|---------------|-----------------------------------------------------------------------------|
-| 'name'        | Recipe name                                                                 |
-| 'id'          | Recipe ID                                                                   |
-| 'minutes'     | Minutes to prepare recipe                                                   |
-| 'contributor_id' | User ID who submitted this recipe                                          |
-| 'submitted'   | Date recipe was submitted                                                   |
-| 'tags'        | Food.com tags for recipe                                                    |
-| 'nutrition'   | Nutrition information in the form [calories (#), total fat (PDV), sugar (PDV), sodium (PDV), protein (PDV), saturated fat (PDV), carbohydrates (PDV)]; PDV stands for “percentage of daily value” |
-| 'n_steps'     | Number of steps in recipe                                                   |
-| 'steps'       | Text for recipe steps, in order                                             |
-| 'description' | User-provided description                                                   |
-
 
 The second dataset is `interactions`, which includes 731927 user reviews with the following 5 columns:
 | Column      | Description                         |

@@ -43,7 +43,7 @@ This analysis will allow us to determine the weight that people might give prote
 5. Separated the `nutrition` column list of values into separate columns. This lets us assess specific types of nutrition in our analysis. 
 6. Computed and added a column for `prop_protein` which contains the proportion of protein of a recipe that contributes to its total calories. The FDA (Food and Drug Association) state that the recommended amount of protein per day is 50g and that each gram contains 4 calories. We used these numbers to calculate this proportion from the `protein (PDV)` column. Our analysis aims to connect protein to ratings, so we needed a way to evaluate protein content in a standardized way. 
 
-Our cleaned dataset is displayed below. It only shows the first 5 rows, but there are 83782 total. We have also ommitted columns not relevant to our analysis, but all of the columns are: [`name`, `id`, `minutes`, `contributor_id`, `submitted`, `tags`, `nutrition`, `n_steps`, `steps`, `description`, `ingredients`, `n_ingredients`, `user_id`, `recipe_id`, `date`, `rating`, `review`, `average_rating`, `calories (#)`, `total fat (PDV)`, `sugar (PDV)`, `sodium (PDV)`, `protein (PDV)`, `saturated fat (PDV)`, `carbohydrates (PDV)`, `prop_protein`, `rating_missing`, `prop_sat_fat`, `n_tags`, `is_high_protein`]
+Our cleaned dataset is displayed below. It only shows the first 5 rows, but there are 83782 total. We have also omitted columns not relevant to our analysis, but all of the columns are: [`name`, `id`, `minutes`, `contributor_id`, `submitted`, `tags`, `nutrition`, `n_steps`, `steps`, `description`, `ingredients`, `n_ingredients`, `user_id`, `recipe_id`, `date`, `rating`, `review`, `average_rating`, `calories (#)`, `total fat (PDV)`, `sugar (PDV)`, `sodium (PDV)`, `protein (PDV)`, `saturated fat (PDV)`, `carbohydrates (PDV)`, `prop_protein`, `rating_missing`, `prop_sat_fat`, `n_tags`, `is_high_protein`]
 
 
 | name                                  | id       | minutes | nutrition                                              | n_steps | n_ingredients | rating | average_rating | calories (#) | total fat (PDV) | sugar (PDV) | sodium (PDV) | protein (PDV) | saturated fat (PDV) | carbohydrates (PDV) | prop_protein |
@@ -122,8 +122,11 @@ We tested if the missingness of `rating` is dependent on `prop_sat_fat`.
 The distribution of saturated fat for both groups seems roughly the same. 
 
 Null Hypothesis: The missingness of ratings does is not dependent on the saturated fat content.
+
 Alternate Hypothesis: The missingness of ratings is dependent on the saturated fat content.
+
 Test Statistic: The absolute difference of means between the proportion of saturated fat for a group with present ratings and a group with missing ratings.
+
 Significance Level: 0.05
 
 After running our permutation test, we got a p-value of 0.0. It is less than our significance level, so we *reject the null hypothesis.* The missingness of rating is MAR dependent on saturated fat content. 
@@ -141,8 +144,11 @@ We then tested if the missingness of `rating` is dependent on `n_tags`.
 The average tags for both groups seems roughly the same. 
 
 Null Hypothesis: The missingness of ratings does is not dependent on the number of tags.
+
 Alternate Hypothesis: The missingness of ratings is dependent on the number of tags.
+
 Test Statistic: The absolute difference of means between the average number of tags for a group with present ratings and a group with missing ratings.
+
 Significance Level: 0.05
 
 After running our permutation test, we got a p-value of 1.0. It is greater than our significance level, so we *fail to reject the null hypothesis.* The missingness of rating is not MAR dependent on number of tags. 
@@ -153,8 +159,11 @@ Here, we go back to our original question: connecting protein to ratings in some
 Intuitively, we thought that recipes with higher protein might have better ratings. So, we took the `prop_protein` column and transformed it into a new boolean column `is_high_protein`. The FDA defines a food as being high-protein if its proportion of protein is greater than 0.2.
 
 Null Hypothesis: People rate all recipes similarly, regardless of protein content.
+
 Alternative Hypothesis: People rate high-protein recipes higher than low-protein recipes.
+
 Test Statistic: The difference in means between ratings for high-protein vs. low-protein recipes.
+
 Significance Level: 0.05
 
 We ran a permutation test to determine if these two groups' appear similar (are from the same population). We chose a one-sided test, since due to the rise in protein-focused health and fitnessed, we thought that people would likely rate high-protein recipes higher and used the difference in means to account for this.

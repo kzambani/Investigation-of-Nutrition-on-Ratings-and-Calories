@@ -1,6 +1,18 @@
-# Investigation-of-Nutrition-on-Ratings-and-Calories
-DSC 80 Final Project
+# Investigation of Nutrition on Ratings and Calories
+By: Karina Zambani and Ivan Chen
 
-Inital Commit!
+## Introduction
 
-Test Change
+## Data Cleaning and Exploratory Data Analysis
+
+## Assessment of Missingness
+
+## Hypothesis Testing
+
+## Framing a Prediction Problem
+
+## Baseline Model
+
+## Final Model
+
+## Fairness Analysis

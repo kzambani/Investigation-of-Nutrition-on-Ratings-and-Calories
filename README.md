@@ -43,13 +43,8 @@ This analysis will allow us to determine the weight that people might give prote
 5. Separated the `nutrition` column list of values into separate columns. This lets us assess specific types of nutrition in our analysis. 
 6. Computed and added a column for `prop_protein` which contains the proportion of protein of a recipe that contributes to its total calories. The FDA (Food and Drug Association) state that the recommended amount of protein per day is 50g and that each gram contains 4 calories. We used these numbers to calculate this proportion from the `protein (PDV)` column. Our analysis aims to connect protein to ratings, so we needed a way to evaluate protein content in a standardized way. 
 
-Our cleaned dataset is displayed below. It only shows the first 5 rows, but there are 83782 total. We have also ommitted columns not relevant to our analysis, but all of the columns are: ['name', 'id', 'minutes', 'contributor_id', 'submitted', 'tags',
-       'nutrition', 'n_steps', 'steps', 'description', 'ingredients',
-       'n_ingredients', 'user_id', 'recipe_id', 'date', 'rating', 'review',
-       'average_rating', 'calories (#)', 'total fat (PDV)', 'sugar (PDV)',
-       'sodium (PDV)', 'protein (PDV)', 'saturated fat (PDV)',
-       'carbohydrates (PDV)', 'prop_protein', 'rating_missing', 'prop_sat_fat',
-       'n_tags', 'is_high_protein']
+Our cleaned dataset is displayed below. It only shows the first 5 rows, but there are 83782 total. We have also ommitted columns not relevant to our analysis, but all of the columns are: [`name`, `id`, `minutes`, `contributor_id`, `submitted`, `tags`, `nutrition`, `n_steps`, `steps`, `description`, `ingredients`, `n_ingredients`, `user_id`, `recipe_id`, `date`, `rating`, `review`, `average_rating`, `calories (#)`, `total fat (PDV)`, `sugar (PDV)`, `sodium (PDV)`, `protein (PDV)`, `saturated fat (PDV)`, `carbohydrates (PDV)`, `prop_protein`, `rating_missing`, `prop_sat_fat`, `n_tags`, `is_high_protein`]
+
 
 | name                                  | id       | minutes | nutrition                                              | n_steps | n_ingredients | rating | average_rating | calories (#) | total fat (PDV) | sugar (PDV) | sodium (PDV) | protein (PDV) | saturated fat (PDV) | carbohydrates (PDV) | prop_protein |
 |---------------------------------------|----------|---------|-------------------------------------------------------|---------|---------------|--------|----------------|--------------|----------------|-------------|--------------|---------------|---------------------|---------------------|--------------|
@@ -80,6 +75,28 @@ Here, we looked at the relationship between `prop_protein` and `average_rating`,
 ></iframe>
 
 ### Interesting Aggregates
+Here we looked at the relationship between `prop_protein` and `n_ingredients`. We created a pivot table to visualize their connection better. 
+
+| n_ingredients | min  | max   | median | mean  | midpoint |
+|---------------|------|-------|--------|-------|----------|
+| 1             | 0.0  | 157.0 | 17.0   | 53.09 | 78.5     |
+| 2             | 0.0  | 1051.0| 7.0    | 29.29 | 525.5    |
+| 3             | 0.0  | 1043.0| 5.0    | 17.46 | 521.5    |
+| ...           | ...  | ...   | ...    | ...   | ...      |
+| 32            | 38.0 | 94.0  | 94.0   | 80.00 | 66.0     |
+| 33            | 8.0  | 8.0   | 8.0    | 8.00  | 8.0      |
+| 37            | 59.0 | 59.0  | 59.0   | 59.00 | 59.0     |
+
+We also created a graph, since just looking at the numbers was tricky. 
+
+<iframe
+  src="assets/pro_ing.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+Here, we see that the mean, median, and min lines are similar the whole way through, for less ingredients and more ingredients. Those values stay very consistent, regardless of the number of ingredients, while only the midpoint and max seem to fluctuate at an overal decreasing trend. This makes sense, as the max will influence the midpoint (it is involved in the midpoint's calculation).
 
 ## Assessment of Missingness
 ### NMAR Analysis

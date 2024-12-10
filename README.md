@@ -81,8 +81,67 @@ Here, we looked at the relationship between `prop_protein` and `average_rating`,
 ### Interesting Aggregates
 
 ## Assessment of Missingness
+### NMAR Analysis
+There are three columns in our dataset that contain missing values: `date`, `rating`, and `review`.
+
+We believe that the `review` column is NMAR. Typically, only people who feel strongly about a recipe will come back to write a review after they've cooked it. Either they found it to be extremely good or extremely poor. People who feel neutral about the recipe aren't as likely to write a review. We might also consider that there is a larger barrier to leaving a review rather than a rating, since it requires a written response; many people may feel it's not worth their time. Since the missingness of `review` depends on its values, it is NMAR.
+
+### Missingness Dependency
+Here, we are investigating the missingness of the `rating` column. We ran two permutation tests that evaluate its dependency on saturated fat content and the number of steps in the recipes.
+
+**Dependency on Saturated Fat Content**
+Similarly to computing the proportion of protein earlier, we found the proportion of saturated fat contributing to calories using the FDA's recommmend amounts (20g per day, 9 calories per gram).
+
+We tested if the missingness of `rating` is dependent on `prop_sat_fat`.
+
+<iframe
+  src="assets/sat_fat_by_missing.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+The distribution of saturated fat for both groups seems roughly the same. 
+
+Null Hypothesis: The missingness of ratings does is not dependent on the saturated fat content.
+Alternate Hypothesis: The missingness of ratings is dependent on the saturated fat content.
+Test Statistic: The absolute difference of means between the proportion of saturated fat for a group with present ratings and a group with missing ratings.
+Significance Level: 0.05
+
+After running our permutation test, we got a p-value of 0.0. It is less than our significance level, so we *reject the null hypothesis.* The missingness of rating is MAR dependent on saturated fat content. 
+
+**Dependency on Number of Tags**
+We then tested if the missingness of `rating` is dependent on `n_tags`.
+
+<iframe
+  src="assets/n_tags_by_missing.html"
+  width="800"
+  height="600"
+  frameborder="0"
+></iframe>
+
+The average tags for both groups seems roughly the same. 
+
+Null Hypothesis: The missingness of ratings does is not dependent on the number of tags.
+Alternate Hypothesis: The missingness of ratings is dependent on the number of tags.
+Test Statistic: The absolute difference of means between the average number of tags for a group with present ratings and a group with missing ratings.
+Significance Level: 0.05
+
+After running our permutation test, we got a p-value of 1.0. It is greater than our significance level, so we *fail to reject the null hypothesis.* The missingness of rating is not MAR dependent on number of tags. 
 
 ## Hypothesis Testing
+Here, we go back to our original question: connecting protein to ratings in some way.
+
+Intuitively, we thought that recipes with higher protein might have better ratings. So, we took the `prop_protein` column and transformed it into a new boolean column `is_high_protein`. The FDA defines a food as being high-protein if its proportion of protein is greater than 0.2.
+
+Null Hypothesis: People rate all recipes similarly, regardless of protein content.
+Alternative Hypothesis: People rate high-protein recipes higher than low-protein recipes.
+Test Statistic: The difference in means between ratings for high-protein vs. low-protein recipes.
+Significance Level: 0.05
+
+We ran a permutation test to determine if these two groups' appear similar (are from the same population). We chose a one-sided test, since due to the rise in protein-focused health and fitnessed, we thought that people would likely rate high-protein recipes higher and used the difference in means to account for this.
+
+After running our permutation test, we got a p-value of 1.0. It is greater than our significance level, so we *fail to reject the null hypothesis.* It seems as though that a recipe being high-protein does not have a significant impact (increase) on its rating.
 
 ## Framing a Prediction Problem
 

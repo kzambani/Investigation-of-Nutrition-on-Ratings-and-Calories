@@ -171,9 +171,22 @@ We ran a permutation test to determine if these two groups' appear similar (are 
 After running our permutation test, we got a p-value of 1.0. It is greater than our significance level, so we *fail to reject the null hypothesis.* It seems as though that a recipe being high-protein does not have a significant impact (increase) on its rating.
 
 ## Framing a Prediction Problem
+With the results of our previous tests, it seems that protein doesn't seem like a huge factor when it comes to ratings. So, let's pivot and look at calories, to fill a prediction problem. 
+
+Besides protein, another significant element of diet culture is calories. People are hyperfixated on the number of calories they are consuming. As a result, we plan to **predict the number of calories in a recipe**, which is an interesting **regression problem** to answer.
+
+Because this will be a regression model, we will use the average (found by KFold) **R^2^ coefficient of determination** to measure the fit. We chose this over RMSE because R^2^ will help us how well our model fits the data and how much variance it explains while RMSE does not diretly tell us variance and it's more prone to outliers. It's important that we use KFold in order to get a more reliable measure of performance.
+
+The information we have prior to our prediction are all the columns in our cleaned dataset except for `nutrition` and any column derived from it which includes `calories (#)`, `total fat (PDV)`, `sugar (PDV)`, `sodium (PDV)`, `protein (PDV)`, `saturated fat (PDV)`, `carbohydrates (PDV)`, `prop_protein`, `prop_sat_fat`, `is_high_protein`. This is because any sort of nutrition information comes with `calories (#)`, which we are trying to predict so we would not have this information at the time of prediction. We will also be dropping any duplicate recipes (from merging) in the cleaned dataset so it does not bias the model.
 
 ## Baseline Model
+For our baseline model, we used a LinearRegression model and used KFold to test the data points into multiple training and test sets to get an average R^2^ to compare performance. THe features we used for this model are `is_healthy` and `n_steps`, because based on intuition, and supported by graphs, recipes tagged with 'healthy' have lower calories and so are less complex recipes with fewer steps.
+
+We one hot encoded the boolean column `is_healthy` with a OneHotEncoder, which turned them into corresponding 0 and 1 values in our preprocessing which allows us to train the model properly because the values are now numeric.
+
+The average R^2^ ended up being 0.013 which is not a great model. To be fair, it is difficult to predict the number of calories a recipe has with no nutrition information but a LinearRegression model is likely not the way to go about it and we can choose more features.
 
 ## Final Model
+As a result, for our final model we chose to use RandomForestRegressor. It would do a better job than LinearRegression because most of our features are nonlinear and they can handle such patterns better without overfitting (assuming fine-tuning was done). We did search for the best hyperparameters by using GridSearchCV. For n_estimators (the number of trees), at one point it 
 
 ## Fairness Analysis

@@ -41,9 +41,10 @@ This analysis will allow us to determine the weight that people might give prote
 3. Computed and added a column for `average_rating` of each recipe. This is to compress down the ratings for each recipe into a single value we can work with.
 4. There are 3 columns that appear to contain lists of values, but are actually strings. For the `tags`, `nutrition`, and `steps` columns, we converted these values to actual lists of strings and floats. We want to be able to work with individual nutrition values and assess specific tags. 
 5. Separated the `nutrition` column list of values into separate columns. This lets us assess specific types of nutrition in our analysis. 
-6. Computed and added a column for `prop_protein` which contains the proportion of protein of a recipe that contributes to its total calories. The FDA (Food and Drug Association) state that the recommended amount of protein per day is 50g and that each gram contains 4 calories. We used these numbers to calculate this proportion from the `protein (PDV)` column. Our analysis aims to connect protein to ratings, so we needed a way to evaluate protein content in a standardized way. 
+6. Computed and added a column for `prop_protein` which contains the proportion of protein of a recipe that contributes to its total calories. The FDA (Food and Drug Association) state that the recommended amount of protein per day is 50g and that each gram contains 4 calories. We used these numbers to calculate this proportion from the `protein (PDV)` column. Our analysis aims to connect protein to ratings, so we needed a way to evaluate protein content in a standardized way.
+7. Computed and added columns `is_healthy`, `is_low_calorie`, and `course` derived from `tags` that contain information on the recipe type. For example, `is_healthy` and `is_low_calorie` are boolean columns that mark True if the recipe has a tag called 'healthy' or 'low-calorie' respectively. `course` is a column of strings marked with 'appetizers', 'main_dish', or 'dessert' if it appears in `tags` (null otherwise).
 
-Our cleaned dataset is displayed below. It only shows the first 5 rows, but there are 83782 total. We have also omitted columns not relevant to our analysis, but all of the columns are: [`name`, `id`, `minutes`, `contributor_id`, `submitted`, `tags`, `nutrition`, `n_steps`, `steps`, `description`, `ingredients`, `n_ingredients`, `user_id`, `recipe_id`, `date`, `rating`, `review`, `average_rating`, `calories (#)`, `total fat (PDV)`, `sugar (PDV)`, `sodium (PDV)`, `protein (PDV)`, `saturated fat (PDV)`, `carbohydrates (PDV)`, `prop_protein`, `rating_missing`, `prop_sat_fat`, `n_tags`, `is_high_protein`]
+Our cleaned dataset is displayed below. It only shows the first 5 rows, but there are 83782 total. We have also omitted columns (for viewing sake) not relevant to our analysis at the moment, but all of the columns are: [`name`, `id`, `minutes`, `contributor_id`, `submitted`, `tags`, `nutrition`, `n_steps`, `steps`, `description`, `ingredients`, `n_ingredients`, `user_id`, `recipe_id`, `date`, `rating`, `review`, `average_rating`, `calories (#)`, `total fat (PDV)`, `sugar (PDV)`, `sodium (PDV)`, `protein (PDV)`, `saturated fat (PDV)`, `carbohydrates (PDV)`, `prop_protein`, `rating_missing`, `prop_sat_fat`, `n_tags`, `is_high_protein`, `is_healthy`, `is_low_calorie`, and `course`]
 
 
 | name                                  | id       | minutes | nutrition                                              | n_steps | n_ingredients | rating | average_rating | calories (#) | total fat (PDV) | sugar (PDV) | sodium (PDV) | protein (PDV) | saturated fat (PDV) | carbohydrates (PDV) | prop_protein |
@@ -168,25 +169,56 @@ Significance Level: 0.05
 
 We ran a permutation test to determine if these two groups' appear similar (are from the same population). We chose a one-sided test, since due to the rise in protein-focused health and fitnessed, we thought that people would likely rate high-protein recipes higher and used the difference in means to account for this.
 
-After running our permutation test, we got a p-value of 1.0. It is greater than our significance level, so we *fail to reject the null hypothesis.* It seems as though that a recipe being high-protein does not have a significant impact (increase) on its rating.
+After running our permutation test, we got a p-value of 1.0. It is greater than our significance level, so we *fail to reject the null hypothesis.* It seems as though we cannot determine that a recipe being high-protein has a significant impact (increase) on its rating based on the current test results.
 
 ## Framing a Prediction Problem
-With the results of our previous tests, it seems that protein doesn't seem like a huge factor when it comes to ratings. So, let's pivot and look at calories, to fill a prediction problem. 
+With the results of our previous tests, it seems that protein doesn't seem like a huge factor when it comes to ratings. So, let's pivot and look at calories, to fit a prediction problem. 
 
 Besides protein, another significant element of diet culture is calories. People are hyperfixated on the number of calories they are consuming. As a result, we plan to **predict the number of calories in a recipe**, which is an interesting **regression problem** to answer.
 
-Because this will be a regression model, we will use the average (found by KFold) **R^2^ coefficient of determination** to measure the fit. We chose this over RMSE because R^2^ will help us how well our model fits the data and how much variance it explains while RMSE does not diretly tell us variance and it's more prone to outliers. It's important that we use KFold in order to get a more reliable measure of performance.
+Because this will be a regression model, we will use the average (found by KFold) **R<sup>2</sup> coefficient of determination** to measure the fit. We chose this over RMSE because R^2^ will help tell us how well our model fits the data and how much variance it explains while RMSE does not diretly tell us variance and it's more prone to outliers. It's important that we use KFold in order to get a more reliable measure of performance as it splits the data in a way that all the data points are used for training and testing.
 
-The information we have prior to our prediction are all the columns in our cleaned dataset except for `nutrition` and any column derived from it which includes `calories (#)`, `total fat (PDV)`, `sugar (PDV)`, `sodium (PDV)`, `protein (PDV)`, `saturated fat (PDV)`, `carbohydrates (PDV)`, `prop_protein`, `prop_sat_fat`, `is_high_protein`. This is because any sort of nutrition information comes with `calories (#)`, which we are trying to predict so we would not have this information at the time of prediction. We will also be dropping any duplicate recipes (from merging) in the cleaned dataset so it does not bias the model.
+The information we have prior to our prediction are all the columns in our cleaned dataset except for `nutrition` and any column derived from it which includes `calories (#)`, `total fat (PDV)`, `sugar (PDV)`, `sodium (PDV)`, `protein (PDV)`, `saturated fat (PDV)`, `carbohydrates (PDV)`, `prop_protein`, `prop_sat_fat`, and `is_high_protein`. This is because any sort of nutrition information comes with `calories (#)`, which we are trying to predict so we would not have this information at the time of prediction. We will also be dropping any duplicate recipes (from merging) in the cleaned dataset so it does not bias the model.
 
 ## Baseline Model
-For our baseline model, we used a LinearRegression model and used KFold to test the data points into multiple training and test sets to get an average R^2^ to compare performance. THe features we used for this model are `is_healthy` and `n_steps`, because based on intuition, and supported by graphs, recipes tagged with 'healthy' have lower calories and so are less complex recipes with fewer steps.
+For our baseline model, we used a LinearRegression model and KFold to split the data points into multiple training and test sets to get an average R<sup>2</sup> to compare performance. The features we used for this model are `is_healthy` (nominal) and `n_steps` (quantitative), because based on intuition, and what's supported by graphs, recipes tagged with 'healthy' have lower calories and so are less complex recipes with fewer steps.
 
-We one hot encoded the boolean column `is_healthy` with a OneHotEncoder, which turned them into corresponding 0 and 1 values in our preprocessing which allows us to train the model properly because the values are now numeric.
+We one hot encoded the boolean column `is_healthy` with a OneHotEncoder, which turned them into corresponding 0 and 1 values in our preprocessing. This allows us to train the model properly because the values are now numeric.
 
-The average R^2^ ended up being 0.013 which is not a great model. To be fair, it is difficult to predict the number of calories a recipe has with no nutrition information but a LinearRegression model is likely not the way to go about it and we can choose more features.
+The average R<sup>2</sup> ended up being 0.013 which is not a great model. To be fair, it is difficult to predict the number of calories a recipe has with no nutrition information but a LinearRegression model is likely not the way to go about it and we can choose more features.
 
 ## Final Model
-As a result, for our final model we chose to use RandomForestRegressor. It would do a better job than LinearRegression because most of our features are nonlinear and they can handle such patterns better without overfitting (assuming fine-tuning was done). We did search for the best hyperparameters by using GridSearchCV. For n_estimators (the number of trees), at one point it 
+As a result, for our final model we chose to use RandomForestRegressor. It would do a better job than LinearRegression because most of our features are nonlinear and they can handle such patterns better without overfitting (assuming fine-tuning was done). We did search for the best hyperparameters by using GridSearchCV. For n_estimators (the number of trees) and max_depth (maximum depth of trees), fine-tuning can control the model's variance while avoiding the issue of overfitting.
+
+For the features, we use `is_healthy` (nominal), `n_steps` (quantitative), `n_ingredients` (quantitative), `is_low_calorie` (nominal), and `course` (nominal).
+
+`is_healthy`
+This column categorized the data as 'healthy' or 'not healthy' by checking the `tags` column if it contains 'healthy'. We chose this feature becase we noticed that recipes marked with this had lower calories on average than those without. As a result, we OneHotEncoded this feature like we did in the baseline model.
+
+`n_steps`
+This column is the number of steps that it takes to complete the recipe. We noticed that recipes that were more complicated tend to end up with more calories. However, `n_steps` skewed left with many more recipes having fewer steps. Because the distribution is non-normal, we used QuantileTransformer to normalized the distribution to make the skew and outliers more manageable.
+
+`n_ingredients`
+This column is the number of ingredients that it takes to complete the recipe. We noticed that recipes that were more cingredients tend to end up with more calories. However, `n_ingredients` skewed left with many more recipes having fewer ingredients. Because the distribution is non-normal, we used QuantileTransformer to normalized the distribution to make the skew and outliers more manageable.
+
+`is_low_calorie`
+This column categorized the data as 'low-calorie' or 'low-calorie' by checking the `tags` column if it contains 'low-calorie'. Similar to `is_healthy`, but far less and a stronger correlation, we chose this feature becase we noticed that recipes marked with this had lower calories on average than those without. As a result, we  OneHotEncoded this feature like we did with `is_healthy`.
+
+`course`
+`is_low_calorie`
+This column categorized the data as 'appetizers', 'main-dish', or 'dessert' (null if none) by checking the `tags` column if it contains those tags. Similar to `is_healthy`, we chose this feature becase we noticed that recipes had varying calorie averages based on their category. As a result, we OneHotEncoded this feature like we did with `is_healthy`.
+
+The final average R<sup>2</sup> ended up being 0.024 which is a noticeable improvement from our baseline model by 0.01. A key part of that likely had to be the use of better features (the `tags` column has a lot of potential) and using a RandomForestRegressor because it can handle nonlinear patterns better than a LinearRegression model.
 
 ## Fairness Analysis
+Now, going back to nutrition, we split the recipes into two groups: high-protein and low-protein based on the boolean column created earlier, `is_high_protein`. (Reminder: The FDA defines a food as being high-protein if its proportion of protein is greater than 0.2). We wanted to see if our model was biased based on protein because it wouldn't be good to predict incorrectly that a low-protein recipe had a low-calorie amount, as it would be the worst of both worlds (low nutrients, calorie dense). As a result, we decided to use RMSE to truly compare the quality of the predictions that the model outputs. 
+
+Null Hypothesis: Our model is fair, it's RMSE for high high-protein recipes is roughly the same as low-protein recipes and any differences are due to random chance.
+
+Alternative Hypothesis: Our model is unfair and the RMSE of high-protein recipes and low-protein recipes are different.
+
+Test Statistic: The absolute difference in RMSE between calories for high-protein vs. low-protein recipes.
+
+Significance Level: 0.05
+
+We ran a permutation test to determine if these two groups' appeared similar (are from the same population). The observed test statistic came out to 898.9, which was pretty high. After shuffling the `is_high_protein` column 1000 times to simulate 1000 permutated test statistics, we ended up with a p-value of 0.35. Because that's more than the 0.5 significance level that we set, we fail to reject the null hypothesis that our model is fair. As a result, we cannot say definitively if the model is biased or not towards the prediction of the calories of high-protein recipes and low-protein recipes and it requires more testing to determine so.
